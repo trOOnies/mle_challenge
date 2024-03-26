@@ -1,9 +1,9 @@
+import numpy as np
 import pandas as pd
-
 from typing import Tuple, Union, List
 
-class DelayModel:
 
+class DelayModel:
     def __init__(
         self
     ):
@@ -13,7 +13,7 @@ class DelayModel:
         self,
         data: pd.DataFrame,
         target_column: str = None
-    ) -> Union(Tuple[pd.DataFrame, pd.DataFrame], pd.DataFrame):
+    ) -> Union[Tuple[pd.DataFrame, pd.DataFrame], pd.DataFrame]:
         """
         Prepare raw data for training or predict.
 
