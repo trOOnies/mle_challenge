@@ -1,10 +1,9 @@
 import pandas as pd
+import xgboost as xgb
 from typing import TYPE_CHECKING, Tuple
 from sklearn.model_selection import train_test_split
 from sklearn.utils import shuffle
 from sklearn.metrics import confusion_matrix, classification_report
-import xgboost as xgb
-from xgboost import plot_importance
 from sklearn.linear_model import LogisticRegression
 if TYPE_CHECKING:
     from numpy import ndarray

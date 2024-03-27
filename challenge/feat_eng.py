@@ -1,52 +1,70 @@
 import pandas as pd
+from copy import deepcopy
 from datetime import datetime
+
+PERIOD_BORDERS = {
+    "morning":   "05:00",  # "max": "11:59"
+    "afternoon": "12:00",  # "max": "18:59"
+    "evening":   "19:00",  # "max": "23:59"
+    "night":     "00:00"   # "max": "04:59"
+}
+PERIOD_BORDERS = {
+    k: datetime.strptime(v, '%H:%M').time()
+    for k, v in PERIOD_BORDERS.items()
+}
+
+HIGH_SEASON_RANGES = {
+    "range1": {"min": "15-Dec", "max": "31-Dec"},
+    "range2": {"min": "1-Jan",  "max":  "3-Mar"},
+    "range3": {"min": "15-Jul", "max": "31-Jul"},
+    "range4": {"min": "11-Sep", "max": "30-Sep"},
+}
+HIGH_SEASON_RANGES = {
+    k1: {
+        k2: datetime.strptime(v2, '%d-%b')
+        for k2, v2 in v1.items()
+    }
+    for k1, v1 in HIGH_SEASON_RANGES.items()
+}
 
 
 def get_period_day(date) -> str:
     date_time = datetime.strptime(date, '%Y-%m-%d %H:%M:%S').time()
-    morning_min = datetime.strptime("05:00", '%H:%M').time()
-    morning_max = datetime.strptime("11:59", '%H:%M').time()
-    afternoon_min = datetime.strptime("12:00", '%H:%M').time()
-    afternoon_max = datetime.strptime("18:59", '%H:%M').time()
-    evening_min = datetime.strptime("19:00", '%H:%M').time()
-    evening_max = datetime.strptime("23:59", '%H:%M').time()
-    night_min = datetime.strptime("00:00", '%H:%M').time()
-    night_max = datetime.strptime("4:59", '%H:%M').time()
-    
-    if(date_time > morning_min and date_time < morning_max):
-        return 'mañana'
-    elif(date_time > afternoon_min and date_time < afternoon_max):
-        return 'tarde'
-    elif(
-        (date_time > evening_min and date_time < evening_max) or
-        (date_time > night_min and date_time < night_max)
-    ):
-        return 'noche'
+
+    if date_time >= PERIOD_BORDERS["morning"] and date_time < PERIOD_BORDERS["afternoon"]:
+        return "mañana"
+    elif date_time >= PERIOD_BORDERS["afternoon"] and date_time < PERIOD_BORDERS["evening"]:
+        return "tarde"
+    else:
+        return "noche"
 
 
-def is_high_season(fecha) -> int:
-    fecha_año = int(fecha.split('-')[0])
+def is_high_season(fecha: str) -> int:
+    fecha_anio = int(fecha.split('-')[0])
     fecha = datetime.strptime(fecha, '%Y-%m-%d %H:%M:%S')
-    range1_min = datetime.strptime('15-Dec', '%d-%b').replace(year = fecha_año)
-    range1_max = datetime.strptime('31-Dec', '%d-%b').replace(year = fecha_año)
-    range2_min = datetime.strptime('1-Jan', '%d-%b').replace(year = fecha_año)
-    range2_max = datetime.strptime('3-Mar', '%d-%b').replace(year = fecha_año)
-    range3_min = datetime.strptime('15-Jul', '%d-%b').replace(year = fecha_año)
-    range3_max = datetime.strptime('31-Jul', '%d-%b').replace(year = fecha_año)
-    range4_min = datetime.strptime('11-Sep', '%d-%b').replace(year = fecha_año)
-    range4_max = datetime.strptime('30-Sep', '%d-%b').replace(year = fecha_año)
-    
-    if ((fecha >= range1_min and fecha <= range1_max) or 
-        (fecha >= range2_min and fecha <= range2_max) or 
-        (fecha >= range3_min and fecha <= range3_max) or
-        (fecha >= range4_min and fecha <= range4_max)):
+
+    hsr = deepcopy(HIGH_SEASON_RANGES)
+    hsr = {
+        k1: {
+            k2: v2.replace(year=fecha_anio)
+            for k2, v2 in v1.items()
+        }
+        for k1, v1 in hsr.items()
+    }
+
+    cond = (
+        (fecha >= hsr["range2"]["min"] and fecha <= hsr["range2"]["max"]) or
+        (fecha >= hsr["range4"]["min"] and fecha <= hsr["range4"]["max"]) or
+        (fecha >= hsr["range1"]["min"] and fecha <= hsr["range1"]["max"]) or
+        (fecha >= hsr["range3"]["min"] and fecha <= hsr["range3"]["max"])
+    )  # order based on number of days (for efficiency)
+    if cond:
         return 1
     else:
         return 0
 
 
 def get_min_diff(data: pd.DataFrame) -> float:
-    fecha_o = datetime.strptime(data['Fecha-O'], '%Y-%m-%d %H:%M:%S')
-    fecha_i = datetime.strptime(data['Fecha-I'], '%Y-%m-%d %H:%M:%S')
-    min_diff = ((fecha_o - fecha_i).total_seconds())/60
-    return min_diff
+    fecha_o = datetime.strptime(data["Fecha-O"], "%Y-%m-%d %H:%M:%S")
+    fecha_i = datetime.strptime(data["Fecha-I"], "%Y-%m-%d %H:%M:%S")
+    return ((fecha_o - fecha_i).total_seconds()) / 60.0

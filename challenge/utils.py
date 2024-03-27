@@ -2,24 +2,24 @@ import pandas as pd
 
 
 def get_rate_from_column(data: pd.DataFrame, column: str) -> pd.DataFrame:
-    delays = {}
-    for _, row in data.iterrows():
-        if row['delay'] == 1:
-            if row[column] not in delays:
-                delays[row[column]] = 1
-            else:
-                delays[row[column]] += 1
+    delays = {k: 0 for k in data[column].unique()}
+    delayed_rows = data[column][data.delay == 1]
+    delays.update(delayed_rows.value_counts().to_dict())
+    del delayed_rows
+
     total = data[column].value_counts().to_dict()
-    
-    rates = {}
-    for name, total in total.items():
-        if name in delays:
-            rates[name] = round(total / delays[name], 2)
-        else:
-            rates[name] = 0
-            
+
+    rates = {
+        name: (
+            round(total / delays[name], 2)
+            if delays[name] > 0
+            else 0
+        )
+        for name, total in total.items()
+    }
+
     return pd.DataFrame.from_dict(
-        data=rates,
+        rates,
         orient='index',
         columns=['Tasa (%)']
     )
