@@ -23,7 +23,7 @@ def get_validator(feat: str, vals) -> Tuple[Validator, str]:
         def clb(v: Any) -> bool:
             try:
                 to_datetime(v)
-            except:
+            except Exception:
                 return False
             else:
                 return True
@@ -31,7 +31,7 @@ def get_validator(feat: str, vals) -> Tuple[Validator, str]:
     elif isinstance(vals, list):
         assert vals
         dtype = type(vals[0])
-        assert all(type(val) == dtype for val in vals)
+        assert all(isinstance(val, dtype) for val in vals)
         if dtype == str:
             str_dtype = "str"
         elif dtype == int:
@@ -54,7 +54,9 @@ def get_validator(feat: str, vals) -> Tuple[Validator, str]:
             raise NotImplementedError(f"dtype '{str_dtype}' not implemented.")
 
         def clb(v: Any) -> bool:
-            return isinstance(v, int) and (vals["from"] <= v) and (v <= vals["to"])
+            return isinstance(v, int) \
+                and (vals["from"] <= v) \
+                and (v <= vals["to"])
         return clb, str_dtype
     else:
         raise ValueError(f"Feature {feat} validators couldn't be understood")

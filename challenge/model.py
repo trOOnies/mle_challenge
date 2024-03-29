@@ -13,7 +13,7 @@ from challenge.feat_eng import get_min_diff
 VALIDATORS, FEAT_DTYPES = get_validators()
 DELAY_THRESH_IN_MINS = 15
 FEATURE_COLS = [
-    "OPERA_Latin American Wings", 
+    "OPERA_Latin American Wings",
     "MES_7",
     "MES_10",
     "OPERA_Grupo LATAM",
@@ -38,7 +38,10 @@ class DelayModel:
         self.input_params: Optional[Dict[str, Any]] = None
 
         # self.set_model("lr")  # LogisticRegression
-        self.set_model("xgb", params={"random_state": 1, "learning_rate": 0.01})  # XGBoost
+        self.set_model(
+            "xgb",
+            params={"random_state": 1, "learning_rate": 0.01}
+        )  # XGBoost
 
     @property
     def model_is_set(self) -> bool:
@@ -83,19 +86,33 @@ class DelayModel:
             assert target_column in data.columns
             self.input_cols = [c for c in data.columns if c != target_column]
 
-        data = data.astype({k: v for k, v in FEAT_DTYPES.items() if k in data.columns and v != "DATETIME"})
+        data = data.astype(
+            {
+                k: v for k, v in FEAT_DTYPES.items()
+                if k in data.columns and v != "DATETIME"
+            }
+        )
 
         # Getting dummies
-        str_cols = {k: v for k, v in FEAT_DTYPES.items() if k in data.columns and v == "str"}
+        str_cols = {
+            k: v for k, v in FEAT_DTYPES.items()
+            if k in data.columns and v == "str"
+        }
         if str_cols:
             if self.dummies is None:
                 assert not self.model_is_fitted
                 data = pd.concat(
-                    [data.drop(str_cols, axis=1)] + [pd.get_dummies(data[ft].astype(str), prefix=ft) for ft in str_cols],
+                    [data.drop(str_cols, axis=1)] + [
+                        pd.get_dummies(data[ft].astype(str), prefix=ft)
+                        for ft in str_cols
+                    ],
                     axis=1
                 )
                 self.dummies = {
-                    ft: [c[len(ft)+1:] for c in data.columns if c.startswith(f"{ft}_")]
+                    ft: [
+                        c[len(ft)+1:]
+                        for c in data.columns if c.startswith(f"{ft}_")
+                    ]
                     for ft in str_cols
                 }
             else:
@@ -110,11 +127,15 @@ class DelayModel:
                 if not cond:
                     raise HTTPException(
                         status.HTTP_400_BAD_REQUEST,
-                        "Values used must be contained inside the model's fitted dummy columns"
+                        "Values used must be contained "
+                        + "inside the model's fitted dummy columns"
                     )
 
                 data = pd.concat(
-                    [data.drop(str_cols, axis=1)] + [pd.get_dummies(data[ft].astype(str), prefix=ft) for ft in str_cols],
+                    [data.drop(str_cols, axis=1)] + [
+                        pd.get_dummies(data[ft].astype(str), prefix=ft)
+                        for ft in str_cols
+                    ],
                     axis=1
                 )
                 missing_cols = [
@@ -125,7 +146,15 @@ class DelayModel:
                 ]
                 if missing_cols:
                     data = pd.concat(
-                        [data] + [pd.DataFrame(np.zeros((data.shape[0], len(missing_cols)), dtype=int), columns=missing_cols)],
+                        [data] + [
+                            pd.DataFrame(
+                                np.zeros(
+                                    (data.shape[0], len(missing_cols)),
+                                    dtype=int
+                                ),
+                                columns=missing_cols
+                            )
+                        ],
                         axis=1
                     )
 
@@ -174,7 +203,10 @@ class DelayModel:
         _params = self.input_params if self.input_params is not None else {}
 
         if self.model_type == "lr":
-            _params["class_weight"] = {1: n0 / target.size, 0: n1 / target.size}
+            _params["class_weight"] = {
+                1: n0 / target.size,
+                0: n1 / target.size
+            }
             self._model = LogisticRegression(**_params)
         elif self.model_type == "xgb":
             _params["scale_pos_weight"] = n0 / n1
@@ -197,7 +229,8 @@ class DelayModel:
         if not all(set(fl.keys()) == vars_set for fl in flights):
             raise HTTPException(
                 status.HTTP_400_BAD_REQUEST,
-                "Wrong feature names"  # if the API was private we could have more verbosity here
+                "Wrong feature names"
+                # if the API was private we could have more verbosity here
             )
 
         cond = all(
@@ -208,7 +241,8 @@ class DelayModel:
         if not cond:
             raise HTTPException(
                 status.HTTP_400_BAD_REQUEST,
-                "Wrong feature values"  # if the API was private we could have more verbosity here
+                "Wrong feature values"
+                # if the API was private we could have more verbosity here
             )
 
     def predict(
@@ -220,7 +254,7 @@ class DelayModel:
 
         Args:
             features (pd.DataFrame): preprocessed data.
-        
+
         Returns:
             (List[int]): predicted targets.
         """
@@ -242,30 +276,3 @@ class DelayModel:
         data = data.drop(["Fecha-I", "Fecha-O"], axis=1)
         data["delay"] = (min_diff > DELAY_THRESH_IN_MINS).astype(int)
         return data
-
-
-# def train_xgboost(
-#     x_train: pd.DataFrame,
-#     x_test: pd.DataFrame,
-#     y_train: np.ndarray,
-#     y_test: np.ndarray
-# ):
-#     xgb_model = xgb.XGBClassifier(random_state=1, learning_rate=0.01)
-#     xgb_model.fit(x_train, y_train)
-#     xgboost_y_preds = xgb_model.predict(x_test)
-#     xgboost_y_preds = [1 if y_pred > 0.5 else 0 for y_pred in xgboost_y_preds]
-#     confusion_matrix(y_test, xgboost_y_preds)
-#     print(classification_report(y_test, xgboost_y_preds))
-
-
-# def train_logistic_regression(
-#     x_train: pd.DataFrame,
-#     x_test: pd.DataFrame,
-#     y_train: np.ndarray,
-#     y_test: np.ndarray
-# ):
-#     reg_model = LogisticRegression()
-#     reg_model.fit(x_train, y_train)
-#     reg_y_preds = reg_model.predict(x_test)
-#     confusion_matrix(y_test, reg_y_preds)
-#     print(classification_report(y_test, reg_y_preds))

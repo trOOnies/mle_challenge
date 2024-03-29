@@ -1,14 +1,10 @@
 import fastapi
-import numpy as np
 import pandas as pd
 from typing import Dict, List
 from challenge.classes import FlightsIn
 from challenge.model import DelayModel
 
 app = fastapi.FastAPI()
-
-# delay_model = DelayModel()
-# delay_model.set_model("xgb", params={"random_state": 1, "learning_rate": 0.01})
 
 delay_model = DelayModel()
 
