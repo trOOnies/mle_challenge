@@ -4,7 +4,7 @@ Name: Facundo M. Scasso
 
 ## Part I
 
-### Some changes made to the code
+### Some changes made to the notebook code
 
 - Did some major changes to `get_period_day()` so that all parameters are independent. Also, it could have been happening that exact borders weren't being taken into account as all conditions had strict inequality signs.
 - Assuming no nulls are in the data, I also changed the last inequality for an else clause.
@@ -13,7 +13,7 @@ Name: Facundo M. Scasso
 
 ### Conclusion
 
-Both models are pretty similar. I'll put the XGBoost model into production (see my changes on `exploration.ipynb` for further information).
+Both models are pretty similar in terms of their performance. I'll put the XGBoost model into production (see my changes on `exploration.ipynb` for further information).
 
 ## Part II
 
