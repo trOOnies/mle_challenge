@@ -9,3 +9,5 @@ FlightsIn = Dict[Literal["flights"], Flights]
 
 Validator = Callable[[Any], bool]
 ValidatorDict = Dict[FeatureName, Validator]
+
+ModelType = Literal["xgb", "lr"]

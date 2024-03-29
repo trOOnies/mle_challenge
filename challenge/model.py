@@ -1,11 +1,12 @@
 import numpy as np
 import pandas as pd
-from typing import Optional, Tuple, Union, List, Literal, Dict
+from copy import deepcopy
+from typing import Optional, Tuple, Union, List, Dict, Any
 from sklearn.linear_model import LogisticRegression
 from xgboost import XGBClassifier
 from fastapi import status
 from fastapi.exceptions import HTTPException
-from challenge.classes import Flights, FeatureName, FeatureValue
+from challenge.classes import Flights, FeatureName, FeatureValue, ModelType
 from challenge.validate import get_validators
 from challenge.feat_eng import get_min_diff
 
@@ -30,14 +31,18 @@ class DelayModel:
         self
     ):
         self._model = None
+        self.model_type: Optional[ModelType] = None
         self.model_is_fitted = False
         self.input_cols: Optional[List[FeatureName]] = None
         self.dummies: Optional[Dict[FeatureName, List[FeatureValue]]] = None
+        self.input_params: Optional[Dict[str, Any]] = None
+
         self.set_model("lr")  # LogisticRegression
+        # self.set_model("xgb", params={"random_state": 1, "learning_rate": 0.01})  # XGBoost
 
     @property
     def model_is_set(self) -> bool:
-        return self._model is not None
+        return self.model_type is not None
 
     @property
     def features(self) -> np.ndarray:
@@ -138,16 +143,15 @@ class DelayModel:
 
     def set_model(
         self,
-        model_type: Literal["xgb", "lr"],
+        model_type: ModelType,
         params: Optional[dict] = None
     ) -> None:
         assert not self.model_is_set
-        _params = params if params is not None else {}
+        if params is not None:
+            self.input_params = deepcopy(params)
 
-        if model_type == "xgb":
-            self._model = XGBClassifier(**_params)
-        elif model_type == "lr":
-            self._model = LogisticRegression(**_params)
+        if model_type in {"xgb", "lr"}:
+            self.model_type = model_type
         else:
             raise ValueError("model_type has to be of type 'xgb' or 'lr'.")
 
@@ -164,6 +168,20 @@ class DelayModel:
             target (pd.DataFrame): target.
         """
         assert self.model_is_set and not self.model_is_fitted
+
+        n1 = (target.values == 1).sum()
+        n0 = target.shape[0] - n1
+        _params = self.input_params if self.input_params is not None else {}
+
+        if self.model_type == "lr":
+            _params["class_weight"] = {1: n0 / target.size, 0: n1 / target.size}
+            self._model = LogisticRegression(**_params)
+        elif self.model_type == "xgb":
+            _params["scale_pos_weight"] = n0 / n1
+            self._model = XGBClassifier(**_params)
+        else:
+            raise NotImplementedError
+
         self._model.fit(features, target)
         self.model_is_fitted = True
 
@@ -213,6 +231,8 @@ class DelayModel:
         self.model_is_fitted = False
         self.dummies = None
         self.input_cols = None
+        self.input_params = None
+        self.model_type = None
         self._model = None
         print("Model has been unset")
 
