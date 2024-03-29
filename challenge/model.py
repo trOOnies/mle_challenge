@@ -37,8 +37,8 @@ class DelayModel:
         self.dummies: Optional[Dict[FeatureName, List[FeatureValue]]] = None
         self.input_params: Optional[Dict[str, Any]] = None
 
-        self.set_model("lr")  # LogisticRegression
-        # self.set_model("xgb", params={"random_state": 1, "learning_rate": 0.01})  # XGBoost
+        # self.set_model("lr")  # LogisticRegression
+        self.set_model("xgb", params={"random_state": 1, "learning_rate": 0.01})  # XGBoost
 
     @property
     def model_is_set(self) -> bool:

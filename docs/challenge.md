@@ -13,6 +13,10 @@ Name: Facundo M. Scasso
 - In `get_rate_from_column()` I initialize the dict with 0s, as it's more efficient and later on missing keys are inputed as 0 nonetheless.
 - For the barplots I recouple the x and y values, as many of them decoupled them. The x-axis went through a `.value_counts()` transformation, and so it could happen that they get reordered without updating the y-axis order.
 
+#### Conclusion
+
+Both models are pretty similar. I'll put the XGBoost model into production (see my changes `exploration.ipynb` for further information).
+
 ### Part II
 
 ...
