@@ -161,3 +161,4 @@ cython_debug/
 
 # Project
 __MACOSX
+local_files/

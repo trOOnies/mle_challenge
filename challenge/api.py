@@ -17,6 +17,13 @@ train, label = delay_model.preprocess(train, target_column="delay")
 delay_model.fit(train, label)
 
 
+@app.get("/", status_code=200)
+async def root() -> Dict[str, str]:
+    return {
+        "message": "MLE Challenge - Facundo M. Scasso"
+    }
+
+
 @app.get("/health", status_code=200)
 async def get_health() -> Dict[str, str]:
     return {"status": "OK"}
