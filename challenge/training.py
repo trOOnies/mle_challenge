@@ -10,7 +10,10 @@ if TYPE_CHECKING:
 
 
 def get_splits(data: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame, "ndarray", "ndarray"]:
-    training_data = shuffle(data[['OPERA', 'MES', 'TIPOVUELO', 'SIGLADES', 'DIANOM', 'delay']], random_state = 111)
+    training_data = shuffle(
+        data[['OPERA', 'MES', 'TIPOVUELO', 'SIGLADES', 'DIANOM', 'delay']],
+        random_state=111
+    )
     features = pd.concat([
         pd.get_dummies(data['OPERA'], prefix = 'OPERA'),
         pd.get_dummies(data['TIPOVUELO'], prefix = 'TIPOVUELO'), 
@@ -18,7 +21,12 @@ def get_splits(data: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame, "ndarray
         axis = 1
     )
     target = data['delay']
-    x_train, x_test, y_train, y_test = train_test_split(features, target, test_size = 0.33, random_state = 42)
+    x_train, x_test, y_train, y_test = train_test_split(
+        features,
+        target,
+        test_size=0.33,
+        random_state=42
+    )
     # print(f"train shape: {x_train.shape} | test shape: {x_test.shape}")
     # y_train.value_counts('%')*100
     # y_test.value_counts('%')*100

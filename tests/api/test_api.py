@@ -24,7 +24,7 @@ class TestBatchPipeline(unittest.TestCase):
         self.assertEqual(response.json(), {"predict": [0]})
     
 
-    def test_should_failed_unkown_column_1(self):
+    def test_should_failed_unknown_column_1(self):
         data = {       
             "flights": [
                 {
@@ -38,7 +38,7 @@ class TestBatchPipeline(unittest.TestCase):
         response = self.client.post("/predict", json=data)
         self.assertEqual(response.status_code, 400)
 
-    def test_should_failed_unkown_column_2(self):
+    def test_should_failed_unknown_column_2(self):
         data = {        
             "flights": [
                 {
@@ -52,7 +52,7 @@ class TestBatchPipeline(unittest.TestCase):
         response = self.client.post("/predict", json=data)
         self.assertEqual(response.status_code, 400)
     
-    def test_should_failed_unkown_column_3(self):
+    def test_should_failed_unknown_column_3(self):
         data = {        
             "flights": [
                 {

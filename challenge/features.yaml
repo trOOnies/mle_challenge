@@ -1,0 +1,21 @@
+Fecha-I: datetime
+Vlo-I: str
+Ori-I: str
+Des-I: str
+Emp-I: str
+Fecha-O: datetime
+Vlo-O: str
+Ori-O: str
+Des-O: str
+Emp-O: str
+DIA:
+  dtype: int
+  from: 1
+  to: 31
+MES: str  # as dummies
+# AÑO: int
+DIANOM: [Lunes, Martes, Miercoles, Jueves, Viernes, Sabado, Domingo]
+TIPOVUELO: [I, N]
+OPERA: str
+SIGLAORI: str
+SIGLADES: str
