@@ -15,16 +15,16 @@ Name: Facundo M. Scasso
 
 #### Conclusion
 
-Both models are pretty similar. I'll put the XGBoost model into production (see my changes `exploration.ipynb` for further information).
+Both models are pretty similar. I'll put the XGBoost model into production (see my changes on `exploration.ipynb` for further information).
 
 ### Part II
 
-...
+The model is fitted and stays in memory as a `DelayModel` instance. I try to use the `typing` module as much as I can so that code development is as coherent as possible, and also FastAPI can use these to autodocument the input and output of the `/predict` endpoint.
 
 ### Part III
 
-...
+I will deploy the API using Google App Engine on my personal account.
 
 ### Part IV
 
-...
+I'll write the CI/CD files in order to use GitHub Actions + GCP.
