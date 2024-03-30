@@ -8,5 +8,5 @@ ADD ./requirements.txt requirements.txt
 RUN pip install -r requirements.txt
 RUN mkdir /mle_challenge
 ADD ./challenge /mle_challenge/ && ./data /mle_challenge/
-EXPOSE 8000
-CMD ["uvicorn", "challenge.api:app", "--host", "0.0.0.0", "--port", "8000"]
+EXPOSE 8080
+CMD ["uvicorn", "challenge.api:app", "--host", "0.0.0.0", "--port", "8080"]
