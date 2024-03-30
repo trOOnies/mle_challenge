@@ -30,12 +30,12 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - name: Setup Google Cloud SDK
-        uses: google-github-actions/setup-gcloud@master
+      - id: 'auth'
+        uses: 'google-github-actions/auth@v2'
         with:
-          service_account_key: ${{ secrets.GCP_SA_KEY }}
-          project_id: tidal-fusion-418719
-          export_default_credential: true
+          credentials_json: '${{ secrets.GCP_SA_KEY }}'
+      - name: Setup Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
       - name: Deploy to GCP
         run: |
           gcloud config set project tidal-fusion-418719
