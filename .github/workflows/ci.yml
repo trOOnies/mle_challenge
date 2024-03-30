@@ -27,7 +27,9 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements-test.txt
       - name: Build
-        run: make build
+        run: |
+          make build &
+          sleep 30
 
   test:
     needs: build
@@ -48,6 +50,8 @@ jobs:
       - name: Test model
         run: make model-test
       - name: Build
-        run: make build
+        run: |
+          make build &
+          sleep 30
       - name: Stress test
         run: make stress-test
