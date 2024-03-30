@@ -33,3 +33,4 @@ Additionally, the API instance specifications can be found inside the `app.yaml`
 ## Part IV
 
 I'll write the CI/CD files in order to use GitHub Actions + Google App Engine.
+Also, I'm changing the provided `setup.py` build to a `uvicorn` based build.

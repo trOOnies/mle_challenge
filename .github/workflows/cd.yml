@@ -28,16 +28,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - name: Set up Python 3.8
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.8
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-      - name: Build
-        run: make build
       - name: Setup Google Cloud SDK
         uses: google-github-actions/setup-gcloud@master
         with:
@@ -47,4 +37,4 @@ jobs:
       - name: Deploy to GCP
         run: |
           gcloud config set project tidal-fusion-418719
-          gcloud app deploy
+          gcloud app deploy ./app.yaml
